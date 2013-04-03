@@ -1,0 +1,9 @@
+<plugin>
+    <name>Price Lookup</name>
+    <version>1.0</version>
+    <class>com.speed.rs.plugin.PriceLookup</class>
+    <paths>
+        <path>./out/production/</path>
+        <path>./res/</path>
+    </paths>
+</plugin>
