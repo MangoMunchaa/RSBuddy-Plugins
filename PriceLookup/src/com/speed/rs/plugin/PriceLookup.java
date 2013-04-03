@@ -12,6 +12,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Paint;
 
 import java.io.IOException;
 import java.util.EnumSet;
@@ -79,6 +80,7 @@ public class PriceLookup extends WidgetPluginBase {
                     label = NOT_FOUND_LABEL;
                 } else {
                     label = new Label(object.name() + ": " + formatPrice(object.price()));
+                    label.setTextFill(Paint.valueOf("WHITE"));
                 }
                 label.autosize();
                 vbox.getChildren().add(label);
