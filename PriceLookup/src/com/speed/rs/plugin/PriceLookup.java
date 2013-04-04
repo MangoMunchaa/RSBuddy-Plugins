@@ -4,6 +4,7 @@ import com.rsbuddy.api.gui.Location;
 import com.rsbuddy.api.net.GeObject;
 import com.rsbuddy.api.net.GrandExchange;
 import com.rsbuddy.plugin.WidgetPluginBase;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -26,8 +27,8 @@ import java.util.EnumSet;
  */
 public class PriceLookup extends WidgetPluginBase {
     private Label label;
-    private static final Label DEFAULT_LABEL = new Label("Enter an ID or name to lookup the price."),
-            NOT_FOUND_LABEL = new Label("Item not found.");
+    private static final String DEFAULT_LABEL = "Enter an ID or name to lookup the price.",
+            NOT_FOUND_LABEL = "Item not found.";
     private GrandExchange grandExchange;
 
     public PriceLookup() {
@@ -55,7 +56,7 @@ public class PriceLookup extends WidgetPluginBase {
         vbox.setSpacing(5);
         final TextField text = new TextField();
         final Button lookup = new Button("Lookup");
-        label = DEFAULT_LABEL;
+        label = new Label(DEFAULT_LABEL);
         label.autosize();
         lookup.autosize();
         text.setOnAction(new EventHandler<ActionEvent>() {
@@ -65,25 +66,29 @@ public class PriceLookup extends WidgetPluginBase {
         });
         lookup.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent actionEvent) {
-                GeObject object = null;
-                try {
-                    if (text.getText().matches("\\d+")) {
-                        object = grandExchange.lookup(Integer.parseInt(text.getText()));
-                    } else {
-                        object = grandExchange.lookup(text.getText());
+                label.setText("Searching...");
+                Platform.runLater(new Runnable() {
+                    public void run() {
+                        GeObject object = null;
+                        try {
+                            if (text.getText().matches("\\d+")) {
+                                object = grandExchange.lookup(Integer.parseInt(text.getText()));
+                            } else {
+                                object = grandExchange.lookup(text.getText());
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        if (object == null) {
+                            label.setText(NOT_FOUND_LABEL);
+                        } else {
+                            label.setText(object.name() + ": " + formatPrice(object.price()));
+                            label.setTextFill(Color.WHITESMOKE);
+                        }
+                        label.autosize();
                     }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                vbox.getChildren().remove(label);
-                if (object == null) {
-                    label = NOT_FOUND_LABEL;
-                } else {
-                    label = new Label(object.name() + ": " + formatPrice(object.price()));
-                    label.setTextFill(Color.WHITESMOKE);
-                }
-                label.autosize();
-                vbox.getChildren().add(label);
+                });
+
             }
         });
         vbox.getChildren().add(text);
